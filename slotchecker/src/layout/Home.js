@@ -13,7 +13,8 @@ import {
     Tab, 
     TabPanel,
     Text,
-    Stack
+    Stack,
+    Divider
 } from '@chakra-ui/react';
 
 import Axios from "axios";
@@ -37,7 +38,21 @@ const Home = () =>{
 
     const [ display, changeDisplay] = useState("flex");
 
+    const [vaccineData , setVaccineData] = useState(null);
+
     // const [alignment, changeAlignment] = useState("center");
+    const fetchDetails = async () =>{
+        try{
+            const {data} = await Axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${query}&date=14-09-2021`)
+            setVaccineData(data);
+            console.log(data)
+        }catch (error){
+            toast({
+                title: "Error",
+                description: `${error.message}`
+            })
+        }
+    }
 
     return (
         <>
@@ -45,10 +60,11 @@ const Home = () =>{
         alignItems="center"
         justifyContent="center"
         >
-            <Stack>
-
-            <Text fontSize="4xl" p={20}>Your one shot 💉 to get Vaccine Availability</Text>
-        <Tabs align="center" variant="soft-rounded" colorScheme="green">
+        <Stack>
+            <Text fontSize="4xl" p={20}>
+                Your one shot 💉 to get Vaccine Availability
+            </Text>
+            <Tabs align="center" variant="soft-rounded" colorScheme="green">
             <TabList>
                 <Tab>Search by Pincode</Tab>
                 <Tab>Search by District</Tab>
@@ -79,6 +95,7 @@ const Home = () =>{
                             <IconButton 
                                 size="lg"
                                 background={FormBackground}
+                                onClick={fetchDetails}
                                 icon={
                                     <SearchIcon />
                                 }
@@ -139,6 +156,46 @@ const Home = () =>{
                 </TabPanel>
             </TabPanels>
         </Tabs>
+        <Flex>
+            { vaccineData ? 
+            (
+                <>
+                <Text>
+                    {vaccineData.sessions[0]?.name}
+                </Text>
+                <Text>
+                    {vaccineData.sessions[0]?.address}
+                </Text>
+                <Text>
+                    {vaccineData.sessions[0]?.state_name}
+                </Text>
+                <Text>
+                    {vaccineData.sessions[0]?.district_name}
+                </Text>
+                <Text>
+                    {vaccineData.sessions[0]?.block_name}
+                </Text>
+                <Text>
+                    total Availabe Capacity{vaccineData.sessions[0]?.available_capacity}
+                </Text>
+                <Text>
+                    Availabe Capacity of dose 1{vaccineData.sessions[0]?.available_capacity_dose1}
+                </Text>
+                <Text>
+                    Availabe Capacity of dose 2{vaccineData.sessions[0]?.available_capacity_dose2}
+                </Text>
+                <Text>
+                    Vaccine: {vaccineData.sessions[0]?.vaccine}
+                </Text>
+                <Text>
+                    Slots: {vaccineData.sessions[0]?.slots}
+                </Text>
+                </>
+            )
+            : (
+                <></>
+            ) }
+        </Flex>
         </Stack>
         </Flex>
         </>
