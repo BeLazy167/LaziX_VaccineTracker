@@ -20,18 +20,14 @@ import {
 } from '@chakra-ui/react';
 
 import Axios from "axios";
-import {SearchIcon,ChevronDownIcon} from '@chakra-ui/icons';
+import {SearchIcon} from '@chakra-ui/icons';
+import { useMediaQuery } from '@chakra-ui/media-query';
 
-import {
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    Button
-  } from "@chakra-ui/react"
-
+import VaccineDataCard from "./VaccineDataCard";
 
 const Home = () =>{
+    const [isNotSmallerScreen ] = useMediaQuery("(min-width:600px)");
+
     const [query, setQuery] = useState('');
 
     const toast = useToast();
@@ -52,10 +48,12 @@ const Home = () =>{
         "PLEASE SELECT A STATE FIRST"
     );
 
+    const [loading, setLoading] = useState(false);
+
     // const [alignment, changeAlignment] = useState("center");
     const fetchDetails = async () =>{
         try{
-            const {data} = await Axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${query}&date=14-09-2021`)
+            const {data} = await Axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${query}&date=15-09-2021`)
             setVaccineData(data);
             console.log(data)
         }catch (error){
@@ -84,14 +82,15 @@ const Home = () =>{
           stateCode === "States"
             ? null
             : `https://cdn-api.co-vin.in/api/v2/admin/location/districts/${stateCode}`;
+        setLoading(true);
         await fetch(url)
           .then((res) => res.json())
           .then((data) => {
+            setLoading(false);
             setStateCode(stateCode);
             setDistricts(data.districts);
-            console.log(data);
-        });
-    };
+          });
+      };
 
     const findByDistrict = async (e) => {
         const districtCode = e.target.value;
@@ -100,19 +99,24 @@ const Home = () =>{
           districtCode === "PLEASE SELECT A STATE FIRST"
             ? null
             : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${districtCode}&date=14-09-2021`;
+        setLoading(true);
         await fetch(url)
           .then((res) => res.json())
           .then((data) => {
+            setLoading(false);
             setDistrictCode(districtCode);
             setVaccineData(data.sessions);
-        });
-    };
+            console.log(data.sessions)
+          });
+      };
+    
 
     return (
         <>
         <Flex
         alignItems="center"
         justifyContent="center"
+        direction={isNotSmallerScreen ? "row": "column"}
         >
         <Stack>
             <Text fontSize="4xl" p={20}>
@@ -219,51 +223,18 @@ const Home = () =>{
                                     )}
                                 </FormControl>
                             </Flex>
+                            
                         </Flex>
+                        
                     </Stack>
                 </TabPanel>
             </TabPanels>
         </Tabs>
-        {/* <Flex>
-            { vaccineData ? 
-            (
-                <>
-                <Text>
-                    {vaccineData.sessions[0]?.name}
-                </Text>
-                <Text>
-                    {vaccineData.sessions[0]?.address}
-                </Text>
-                <Text>
-                    {vaccineData.sessions[0]?.state_name}
-                </Text>
-                <Text>
-                    {vaccineData.sessions[0]?.district_name}
-                </Text>
-                <Text>
-                    {vaccineData.sessions[0]?.block_name}
-                </Text>
-                <Text>
-                    total Availabe Capacity{vaccineData.sessions[0]?.available_capacity}
-                </Text>
-                <Text>
-                    Availabe Capacity of dose 1{vaccineData.sessions[0]?.available_capacity_dose1}
-                </Text>
-                <Text>
-                    Availabe Capacity of dose 2{vaccineData.sessions[0]?.available_capacity_dose2}
-                </Text>
-                <Text>
-                    Vaccine: {vaccineData.sessions[0]?.vaccine}
-                </Text>
-                <Text>
-                    Slots: {vaccineData.sessions[0]?.slots}
-                </Text>
-                </>
-            )
-            : (
-                <></>
-            ) }
-        </Flex> */}
+        { vaccineData ? (
+            <VaccineDataCard vaccineData={vaccineData} />
+            ) : (
+                null
+            )}
         </Stack>
         </Flex>
         </>
