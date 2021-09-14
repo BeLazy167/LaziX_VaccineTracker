@@ -1,4 +1,4 @@
-# {Vaccine Tracker}
+# SlotChecker
 
 Your one stop 💉 vaccine availability tracker with intutive UI for easy navigation.
 
