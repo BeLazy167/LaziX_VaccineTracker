@@ -8,6 +8,7 @@ import {
   BrowserRouter as Router
 } from 'react-router-dom';
 import Home from './layout/Home';
+import Footer from './layout/Footer'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
     <Router>
       <Header />
       <Home />
+      <Footer />
     </Router>
     </>
   );

@@ -16,11 +16,12 @@ import {
     Stack,
     Divider,
     FormControl,
-    Select
+    Button,
+    Select,CircularProgress, CircularProgressLabel
 } from '@chakra-ui/react';
 
 import Axios from "axios";
-import {SearchIcon} from '@chakra-ui/icons';
+import {SearchIcon,EmailIcon} from '@chakra-ui/icons';
 import { useMediaQuery } from '@chakra-ui/media-query';
 
 import VaccineDataCard from "./VaccineDataCard";
@@ -28,7 +29,7 @@ import VaccineDataCard from "./VaccineDataCard";
 const Home = () =>{
     const [isNotSmallerScreen ] = useMediaQuery("(min-width:600px)");
 
-    const [query, setQuery] = useState('');
+    const [pin, setPin] = useState('');
 
     const toast = useToast();
 
@@ -37,6 +38,8 @@ const Home = () =>{
     const [ display, changeDisplay] = useState("flex");
 
     const [vaccineData , setVaccineData] = useState(null);
+
+    const [vaccineDataForPin , setVaccineDataForPin] = useState(null);
 
     const [state, setState] = useState([]);
 
@@ -51,18 +54,18 @@ const Home = () =>{
     const [loading, setLoading] = useState(false);
 
     // const [alignment, changeAlignment] = useState("center");
-    const fetchDetails = async () =>{
-        try{
-            const {data} = await Axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${query}&date=15-09-2021`)
-            setVaccineData(data);
-            console.log(data)
-        }catch (error){
-            toast({
-                title: "Error",
-                description: `${error.message}`
-            })
-        }
-    }
+    // const fetchDetails = async () =>{
+    //     try{
+    //         const {data} = await Axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${query}&date=15-09-2021`)
+    //         setVaccineData(data);
+    //         console.log(data)
+    //     }catch (error){
+    //         toast({
+    //             title: "Error",
+    //             description: `${error.message}`
+    //         })
+    //     }
+    // }
 
     useEffect(() => {
     fetch("https://cdn-api.co-vin.in/api/v2/admin/location/states")
@@ -109,6 +112,21 @@ const Home = () =>{
             console.log(data.sessions)
           });
       };
+
+      const fetchDataUsingByPin = async () => {
+        if (pin.length !== 6) {
+          alert("A Pincode must be of 6 digits");
+        } else {
+          await fetch(
+            `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=14-09-2021`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              setVaccineDataForPin(data.sessions);
+            });
+        }
+      };
     
 
     return (
@@ -118,7 +136,7 @@ const Home = () =>{
         justifyContent="center"
         direction={isNotSmallerScreen ? "row": "column"}
         >
-        <Stack>
+        <Stack height="100%" pb={190}>
             <Text fontSize="4xl" p={20}>
                 Your one shot 💉 to get Vaccine Availability
             </Text>
@@ -129,6 +147,7 @@ const Home = () =>{
             </TabList>
             <TabPanels>
                 <TabPanel>
+                    <Stack>
                     <Flex 
                     w="100%" 
                     alignItems="center" 
@@ -136,24 +155,23 @@ const Home = () =>{
                     pt={5}
                     >
                         <Flex 
-                        direction="column" 
+                        direction="row" 
                         rounded={100}
                         display={ display }
                         >
                             <InputGroup>
                             <Input
-                            placeholder="github"
                             variant="filled"
                             type="text"
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
+                            value={pin}
+                            onChange={e => setPin(e.target.value)}
                             placeholder="Enter Pincode"
                             />
                             <InputRightElement>
                             <IconButton 
-                                size="lg"
+                                size="md"
                                 background={FormBackground}
-                                onClick={fetchDetails}
+                                onClick={fetchDataUsingByPin}
                                 icon={
                                     <SearchIcon />
                                 }
@@ -162,6 +180,12 @@ const Home = () =>{
                             </InputGroup>
                         </Flex>
                     </Flex>
+                    { vaccineDataForPin ? (
+                        <VaccineDataCard vaccineData={vaccineDataForPin} />
+                        ) : (
+                            null
+                        )}
+                    </Stack>
                 </TabPanel>
                 <TabPanel>
                     <Stack direction={["column", "row"]} alignItems="center" justifyContent="center">
@@ -223,9 +247,7 @@ const Home = () =>{
                                     )}
                                 </FormControl>
                             </Flex>
-                            
                         </Flex>
-                        
                     </Stack>
                 </TabPanel>
             </TabPanels>
@@ -240,16 +262,5 @@ const Home = () =>{
         </>
     )
 }
-
-{/* <Flex p="5">
-        <Spacer />
-        <Box p="2">
-        <Heading size="xl" pl="70">Productiv 🧹</Heading>
-        </Box>
-        <Spacer />
-        <Box>
-        <Drawerlist></Drawerlist>
-        </Box>
-    </Flex> */}
 
 export default Home;

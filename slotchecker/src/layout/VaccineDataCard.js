@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex,Stack ,Box} from '@chakra-ui/layout';
 import { useMediaQuery } from '@chakra-ui/media-query'; 
-import {useColorModeValue,Badge,Text} from '@chakra-ui/react';
+import {useColorModeValue,Badge,Text,Spacer} from '@chakra-ui/react';
 
 const VaccineDataCard = ({vaccineData}) =>{
 
@@ -23,25 +23,44 @@ const VaccineDataCard = ({vaccineData}) =>{
                         rounded={6}
                         direction={isNotSmallerScreen ? "row": "column"}
                         key={vaccine.center_id}
+                        justifyContent="space-between"
                         >
                             <Box
                             w="100%"
+                            pr={isNotSmallerScreen ? "10": "0"}
+                            justifyContent="space-between"
                             >
                                 <Stack isInline="solid" align="baseline">
-                                    <Text as="h2" fontWeight="semibold" fontSize="xl" my={2}>
-                                        Vaccine Name
-                                    </Text>
-                                    <Badge variant="solid" variantColor="teal" rounded="full" px={2} textAlign="right">
+                                    <Text fontWeight="bold" fontSize="md" my={2} align="start" pr={2}>
                                         {vaccine.name}
+                                    </Text>
+                                    <Badge variant="solid" colorScheme="green" rounded="full" px={2} textAlign="right" align="end">
+                                        {vaccine.vaccine}
                                     </Badge>
                                 </Stack>
-                                <Stack isInline="solid" align="baseline">
-                                    <Text as="h2" fontWeight="semibold" fontSize="xl" my={2}>
-                                        Address
+                                <Stack 
+                                isInline="solid" 
+                                align="baseline"
+                                justify-content="space-between"
+                                >
+                                    <Text as="h2" fontWeight="semibold" fontSize="md" my={2}>
+                                        Address :
                                     </Text>
-                                    <Text as="h2" fontWeight="semibold" fontSize="xl">
+                                    <Text as="h2" fontWeight="semibold" fontSize="md">
                                         {vaccine?.block_name}, {vaccine?.district_name},{" "}
                                         {vaccine?.state_name}
+                                    </Text>
+                                </Stack>
+                                <Stack 
+                                isInline="solid" 
+                                align="baseline"
+                                justify-content="space-between"
+                                >
+                                    <Text as="h2" fontWeight="semibold" fontSize="md" my={2}>
+                                        Pincode :
+                                    </Text>
+                                    <Text as="h2" fontWeight="semibold" fontSize="md">
+                                        {vaccine?.pincode}
                                     </Text>
                                 </Stack>
                             </Box>
@@ -49,12 +68,28 @@ const VaccineDataCard = ({vaccineData}) =>{
                             w="100%"
                             >
                                 <Stack isInline="solid" align="baseline">
-                                    <Text as="h2" fontWeight="semibold" fontSize="xl" my={2}>
-                                        Vaccine Name
+                                    <Text as="h2" fontWeight="semibold" fontSize="md" my={2}>
+                                        Available Capacity :
                                     </Text>
-                                    <Badge variant="solid" variantColor="teal" rounded="full" px={2} textAlign="right">
-                                        {vaccine.name}
+                                    <Badge variant="solid" colorScheme="green" rounded="full" px={2} textAlign="right">
+                                        {vaccine?.available_capacity}
                                     </Badge>
+                                </Stack>
+                                <Stack isInline="solid" align="baseline">
+                                    <Text as="h2" fontWeight="semibold" fontSize="md" my={2}>
+                                        Minimum Age :
+                                    </Text>
+                                    <Text as="h2" fontWeight="semibold" fontSize="md">
+                                        {vaccine?.min_age_limit}
+                                    </Text>
+                                </Stack>
+                                <Stack isInline="solid" align="baseline">
+                                    <Text as="h2" fontWeight="semibold" fontSize="md" my={2}>
+                                        Fees(₹) : 
+                                    </Text>
+                                    <Text as="h2" fontWeight="semibold" fontSize="md">
+                                        {vaccine?.fee}
+                                    </Text>
                                 </Stack>
                             </Box>
                         </Flex>
