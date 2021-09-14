@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import {
     Flex,
     useColorModeValue,
@@ -14,7 +14,9 @@ import {
     TabPanel,
     Text,
     Stack,
-    Divider
+    Divider,
+    FormControl,
+    Select
 } from '@chakra-ui/react';
 
 import Axios from "axios";
@@ -40,6 +42,16 @@ const Home = () =>{
 
     const [vaccineData , setVaccineData] = useState(null);
 
+    const [state, setState] = useState([]);
+
+    const [stateCode, setStateCode] = useState("States");
+
+    const [districts, setDistricts] = useState([]);
+    
+    const [districtCode, setDistrictCode] = useState(
+        "PLEASE SELECT A STATE FIRST"
+    );
+
     // const [alignment, changeAlignment] = useState("center");
     const fetchDetails = async () =>{
         try{
@@ -53,6 +65,48 @@ const Home = () =>{
             })
         }
     }
+
+    useEffect(() => {
+    fetch("https://cdn-api.co-vin.in/api/v2/admin/location/states")
+        .then((res) => res.json())
+        .then((data) => {
+        setState(data.states);
+        });
+    // eslint-disable-next-line
+    }, []);
+
+    const onStateChange = async (e) => {
+        const stateCode = e.target.value;
+        setDistricts([]);
+        setVaccineData([]);
+    
+        const url =
+          stateCode === "States"
+            ? null
+            : `https://cdn-api.co-vin.in/api/v2/admin/location/districts/${stateCode}`;
+        await fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            setStateCode(stateCode);
+            setDistricts(data.districts);
+            console.log(data);
+        });
+    };
+
+    const findByDistrict = async (e) => {
+        const districtCode = e.target.value;
+    
+        const url =
+          districtCode === "PLEASE SELECT A STATE FIRST"
+            ? null
+            : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${districtCode}&date=14-09-2021`;
+        await fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            setDistrictCode(districtCode);
+            setVaccineData(data.sessions);
+        });
+    };
 
     return (
         <>
@@ -110,18 +164,22 @@ const Home = () =>{
                         <Flex 
                         pt={5}
                         >
-                            <Menu>
-                                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                                    Actions
-                                </MenuButton>
-                                <MenuList>
-                                    <MenuItem>Download</MenuItem>
-                                    <MenuItem>Create a Copy</MenuItem>
-                                    <MenuItem>Mark as Draft</MenuItem>
-                                    <MenuItem>Delete</MenuItem>
-                                    <MenuItem>Attend a Workshop</MenuItem>
-                                </MenuList>
-                            </Menu>
+                            <FormControl placeholder="Select option">
+                                <Select
+                                variant="outlined"
+                                value={stateCode}
+                                onChange={onStateChange}
+                                >
+                                    <option>
+                                        Select State
+                                    </option>
+                                {state?.map((stateData) => (
+                                    <option value={stateData?.state_id}>
+                                    {stateData?.state_name}
+                                    </option>
+                                ))}
+                                </Select>
+                            </FormControl>
                         </Flex>
                         <Flex
                         alignItems="center" justifyContent="center">
@@ -131,32 +189,42 @@ const Home = () =>{
                             pt={5}
                             display={ display }
                             >
-                                <InputGroup>
-                                <Input
-                                placeholder="github"
-                                variant="filled"
-                                type="text"
-                                value={query}
-                                onChange={e => setQuery(e.target.value)}
-                                placeholder="Enter District"
-                                />
-                                <InputRightElement>
-                                <IconButton 
-                                    size="lg"
-                                    background={FormBackground}
-                                    icon={
-                                        <SearchIcon />
-                                    }
-                                    />
-                                </InputRightElement>
-                                </InputGroup>
+                                <FormControl className="form-control">
+                                    {districts?.length !== 0 ? (
+                                    <>
+                                        <Select
+                                        variant="outlined"
+                                        value={districtCode}
+                                        onChange={findByDistrict}
+                                        placeholder="Select distict"
+                                        >
+                                        {districts?.map((districtData) => (
+                                            <option value={districtData?.district_id}>
+                                            {districtData?.district_name}
+                                            </option>
+                                        ))}
+                                        </Select>
+                                    </>
+                                    ) : (
+                                    <>
+                                        <Select
+                                        variant="outlined"
+                                        value={districtCode}
+                                        onChange={findByDistrict}
+                                        placeholder="select a State First"
+                                        >
+                                        <option disabled={true}>Select a State First</option>
+                                        </Select>
+                                    </>
+                                    )}
+                                </FormControl>
                             </Flex>
                         </Flex>
                     </Stack>
                 </TabPanel>
             </TabPanels>
         </Tabs>
-        <Flex>
+        {/* <Flex>
             { vaccineData ? 
             (
                 <>
@@ -195,7 +263,7 @@ const Home = () =>{
             : (
                 <></>
             ) }
-        </Flex>
+        </Flex> */}
         </Stack>
         </Flex>
         </>
